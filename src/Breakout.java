@@ -52,6 +52,8 @@ public class Breakout extends GraphicsProgram{
 
     public GOval ball;
     public GRect paddle;
+    public int x_dir = 3;
+    public int y_dir = 3;
 
     //all displays
     public void init(){
@@ -112,16 +114,59 @@ public class Breakout extends GraphicsProgram{
     //all logic
     public void run(){
         //TODO: Implement all logic of the program here
-
         while(true){
-            ball.move(3,3);
+            ball.move(x_dir,y_dir);
             pause(10);
+
+            if (ball.getX() + BALL_RADIUS*2 > 400 || 0 > ball.getX()){
+                x_dir *= -1;
+            }
+
+            //FOR COLLISION TESTING ONLY
+            if (ball.getY() + BALL_RADIUS*2 > 600 || 0 > ball.getY()){
+                y_dir *= -1;
+            }
+            GObject collider = getCollider();
+
+            if(collider != null && !paddle.intersects(ball)){
+                remove(collider);
+            }
         }
     }
 
     public void mouseMoved(MouseEvent me){
-
         paddle.setLocation(me.getX()-PADDLE_WIDTH/2,paddle.getY());
+    }
+
+    public GObject getCollider(){
+
+        GObject topCollision = getElementAt(ball.getX()+BALL_RADIUS ,ball.getY()-0.5);
+        GObject rigCollision = getElementAt(ball.getX()+BALL_RADIUS*2+0.5 ,ball.getY()+BALL_RADIUS);
+        GObject botCollision = getElementAt(ball.getX()+BALL_RADIUS ,ball.getY()+BALL_RADIUS*2+0.5);
+        GObject lefCollision = getElementAt(ball.getX()-0.5,ball.getY()+BALL_RADIUS);
+
+        if(topCollision != null){
+            y_dir *= -1;
+            pause(10);
+            return topCollision;
+
+        } else if (rigCollision != null){
+            x_dir *= -1;
+            pause(10);
+            return rigCollision;
+
+        } else if (botCollision != null){
+            y_dir *= -1;
+            pause(10);
+            return botCollision;
+
+        } else if (lefCollision != null){
+            x_dir *= -1;
+            pause(10);
+            return lefCollision;
+
+        }
+        return null;
     }
 
     public static void main(String[] args){

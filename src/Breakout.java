@@ -52,12 +52,16 @@ public class Breakout extends GraphicsProgram{
 
     public GOval ball;
     public GRect paddle;
+    public GLabel lifetxt;
+    public GLabel scoretxt;
     public int x_dir = 3;
     public int y_dir = 3;
+    public int life = 3;
+    public int score = 0;
 
     //all displays
     public void init(){
-        //TODO: Implement all drawing of the board here
+
 
         //crating bricks per row until 10 then proceed to next row
         for(int brickRow=0; brickRow<NBRICK_ROWS; brickRow++){
@@ -113,8 +117,17 @@ public class Breakout extends GraphicsProgram{
 
     //all logic
     public void run(){
-        //TODO: Implement all logic of the program here
-        while(true){
+        lifetxt = new GLabel("Lives: " + life);
+        lifetxt.setFont("times new roman-25");
+        lifetxt.setColor(Color.gray);
+        add(lifetxt,0,APPLICATION_HEIGHT-lifetxt.getHeight());
+
+        scoretxt = new GLabel("Score: " + score);
+        scoretxt.setFont("times new roman-25");
+        scoretxt.setColor(Color.gray);
+        add(scoretxt, 0, scoretxt.getHeight());
+
+        while(life != 0){
             ball.move(x_dir,y_dir);
             pause(10);
 
@@ -122,16 +135,37 @@ public class Breakout extends GraphicsProgram{
                 x_dir *= -1;
             }
 
-            //FOR COLLISION TESTING ONLY
-            if (ball.getY() + BALL_RADIUS*2 > 600 || 0 > ball.getY()){
-                y_dir *= -1;
+            if (0 > ball.getY()){
+               y_dir *= -1;
             }
+
+            if (ball.getY() > 620 + 10){
+                remove(lifetxt);
+                ball.setLocation((APPLICATION_WIDTH/2)-BALL_RADIUS, (APPLICATION_HEIGHT/2)-BALL_RADIUS);
+                life -= 1;
+                lifetxt.setLabel("Lives: " + life);
+                lifetxt.setColor(Color.gray);
+                add(lifetxt,0,APPLICATION_HEIGHT-lifetxt.getHeight());
+                pause(100);
+            }
+
             GObject collider = getCollider();
 
-            if(collider != null && !paddle.intersects(ball)){
+            if(collider != null && !paddle.intersects(ball) && !lifetxt.intersects(ball)){
+                remove(scoretxt);
+                score += 1;
+                scoretxt = new GLabel("Score: " + score);
+                scoretxt.setFont("times new roman-25");
+                scoretxt.setColor(Color.gray);
+                add(scoretxt,0,scoretxt.getHeight());
                 remove(collider);
+
+                if(score == 100){
+                    win();
+                }
             }
         }
+        gameOver();
     }
 
     public void mouseMoved(MouseEvent me){
@@ -145,22 +179,22 @@ public class Breakout extends GraphicsProgram{
         GObject botCollision = getElementAt(ball.getX()+BALL_RADIUS ,ball.getY()+BALL_RADIUS*2+0.5);
         GObject lefCollision = getElementAt(ball.getX()-0.5,ball.getY()+BALL_RADIUS);
 
-        if(topCollision != null){
+        if(topCollision != null && topCollision != lifetxt && topCollision != scoretxt){
             y_dir *= -1;
             pause(10);
             return topCollision;
 
-        } else if (rigCollision != null){
+        } else if (rigCollision != null && rigCollision != lifetxt && rigCollision != scoretxt){
             x_dir *= -1;
             pause(10);
             return rigCollision;
 
-        } else if (botCollision != null){
+        } else if (botCollision != null && botCollision != lifetxt && botCollision != scoretxt){
             y_dir *= -1;
             pause(10);
             return botCollision;
 
-        } else if (lefCollision != null){
+        } else if (lefCollision != null && lefCollision != lifetxt && lefCollision != scoretxt){
             x_dir *= -1;
             pause(10);
             return lefCollision;
@@ -168,6 +202,36 @@ public class Breakout extends GraphicsProgram{
         }
         return null;
     }
+
+    public void gameOver(){
+        GLabel goscreen = new GLabel("GAME OVER");
+        goscreen.setFont("times new roman-50");
+        goscreen.setColor(Color.yellow);
+        add(goscreen,(APPLICATION_WIDTH/2)-(goscreen.getWidth()/2),(APPLICATION_HEIGHT/2)+(goscreen.getHeight()/2));
+
+        GRect bg = new GRect(APPLICATION_WIDTH,APPLICATION_HEIGHT);
+        bg.setFillColor(Color.gray);
+        bg.setFilled(true);
+        add(bg,0,0);
+        bg.sendBackward();
+
+    }
+
+    public void win(){
+        remove(ball);
+
+        GLabel winscreen = new GLabel("CONGRATULATIONS!!!");
+        winscreen.setFont("times new roman-30");
+        winscreen.setColor(Color.yellow);
+        add(winscreen,(APPLICATION_WIDTH/2)-(winscreen.getWidth()/2),(APPLICATION_HEIGHT/2)+(winscreen.getHeight()/2));
+
+        GRect bg = new GRect(APPLICATION_WIDTH,APPLICATION_HEIGHT);
+        bg.setFillColor(Color.gray);
+        bg.setFilled(true);
+        add(bg,0,0);
+        bg.sendBackward();
+    }
+
 
     public static void main(String[] args){
         (new Breakout()).start(args);

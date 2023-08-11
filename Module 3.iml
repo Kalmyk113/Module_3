@@ -10,11 +10,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/cpei.jar!/" />
+          <root url="jar://$MODULE_DIR$/../cpei.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/Downloads/cpei.jar!/" />
+          <root url="jar://$MODULE_DIR$/../cpei.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
